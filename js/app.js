@@ -74,24 +74,24 @@ const menu = [
 ];
 
 async function createFilterButtons() {
-  const btnContainer = document.querySelector(".btn-container");
+  const btnContainer = document.querySelector(".tabs > ul");
 
   btnContainer.innerHTML = await menu.reduce(
     (values, item) => {
       if (!values.includes(item.category)) {
-        values += `<button class="btn btn-outline-dark btn-item" data-id=${item.category}>${item.category}</button>`;
+        values += `
+        <li><a class="tab-item" data-id="${item.category}">${item.category}</a></li>
+        `;
       }
       return values;
     },
-    [`<button class="btn btn-outline-dark btn-item" data-id="All">All</button>`]
+    [`<li><a class="tab-item" data-id="All">All</a></li>`]
   );
 }
 
 function getList(button) {
   category = button ? button.target.getAttribute("data-id") : "All";
-  const list = document.querySelector(
-    "body > div > section > div.section-center.row"
-  );
+  const list = document.querySelector(".columns");
 
   list.innerHTML = "";
   let listItems = [];
@@ -106,23 +106,29 @@ function getList(button) {
     });
   }
 
-  for (let i = 0; i < listItems.length; i++) {
-    list.innerHTML += `
-      <div class="menu-items col-lg-6 col-sm-12">
-          <img src="${listItems[i].img}" alt="${listItems[i].title}"
-            class="photo">
-          <div class="menu-info">
-            <div class="menu-title">
-              <h4>${listItems[i].title}</h4>
-              <h4 class="price">${listItems[i].price}</h4>
-            </div>
-            <div class="menu-text">
-              ${listItems[i].desc}
+  const menuLists = listItems.map((item) => {
+    return `
+      <div class='column is-6'>
+        <div class="card" style="height: 100%;">
+          <div class="card-image">
+            <figure class="image ">
+              <img src="${item.img}" alt="Placeholder image">
+            </figure>
+          </div>
+          <div class="card-content">
+            <div class="content">
+              <p class="title">${item.title}
+                <small class="is-size-5"> - ${item.price}₺</small>
+              </p>
+              ${item.desc}
             </div>
           </div>
         </div>
+      </div>
     `;
-  }
+  });
+
+  list.innerHTML = menuLists.join("");
 }
 
 (() => {
@@ -131,9 +137,9 @@ function getList(button) {
 
   // Buttonların yüklenmesinden önce buttonlara event ataması yapılmaması için.
   createFilterButtons().then(() => {
-    const buttons = document.querySelectorAll(".btn");
-    for (let i = 0; i < buttons.length; i++) {
-      buttons[i].addEventListener("click", getList);
-    }
+    const buttons = document.querySelectorAll(".tab-item");
+    buttons.forEach((item) => {
+      item.addEventListener("click", getList);
+    });
   });
 })();
